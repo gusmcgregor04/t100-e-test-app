@@ -63,6 +63,7 @@ int main(void)
 		set_led(led_state);
 		//acc_fetch_display();
 		//i2c_scan();
+		print_latest_gnss();
 		k_msleep(SLEEP_TIME_MS);
 	}
 	return 0;

@@ -5,7 +5,8 @@
         "gnss.h": "c",
         "memory": "c",
         "random": "c",
-        "lis3dh.h": "c"
+        "lis3dh.h": "c",
+        "compare": "c"
     },
     "nrf-connect.debugging.bindings": {
         "${workspaceFolder}/build": "Launch build"

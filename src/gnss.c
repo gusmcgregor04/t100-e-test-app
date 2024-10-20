@@ -21,6 +21,10 @@ static const struct gpio_dt_spec gnss_rtc = GPIO_DT_SPEC_GET(GNSS_PINS, rtc_gpio
 static const struct gpio_dt_spec gnss_resetb = GPIO_DT_SPEC_GET(GNSS_PINS, resetb_gpios);
 
 
+struct gnss_data latest_gnss_data;
+struct gnss_satellite latest_satellite_data;
+
+
 
 bool gnss_init() {
 
@@ -65,12 +69,7 @@ bool gnss_init() {
 
 static void gnss_data_cb(const struct device *dev, const struct gnss_data *data)
 {
-	printk("%s: location (%lld, %lld) with %d tracked satellites\n", 
-				dev->name, data->nav_data.latitude, data->nav_data.longitude, data->info.satellites_cnt);
-
-	printk("%s: date: %02d:%02d:%02d:%03d %02d-%02d-%04d\n", 
-				dev->name, data->utc.hour, data->utc.minute, data->utc.millisecond/1000, data->utc.millisecond%1000, 
-				data->utc.month_day, data->utc.month, data->utc.century_year + 2000);
+	latest_gnss_data = *data;
 
 	// if (data->info.fix_status != GNSS_FIX_STATUS_NO_FIX) {
 	// 	printk("Got a fix!\n");
@@ -83,8 +82,21 @@ GNSS_DATA_CALLBACK_DEFINE(GNSS_MODEM, gnss_data_cb);
 static void gnss_satellites_cb(const struct device *dev, const struct gnss_satellite *satellites,
 			       uint16_t size)
 {
+	latest_satellite_data = *satellites;
 	printk("%u satellites reported\n", size);
 }
 
 GNSS_SATELLITES_CALLBACK_DEFINE(GNSS_MODEM, gnss_satellites_cb);
+
+
+void print_latest_gnss(void) {
+	
+	printk("location (%lld, %lld) with %d tracked satellites\n", 
+				latest_gnss_data.nav_data.latitude, latest_gnss_data.nav_data.longitude, latest_gnss_data.info.satellites_cnt);
+
+	printk("date: %02d:%02d:%02d:%03d %02d-%02d-%04d\n", 
+				latest_gnss_data.utc.hour, latest_gnss_data.utc.minute, latest_gnss_data.utc.millisecond/1000, latest_gnss_data.utc.millisecond%1000, 
+				latest_gnss_data.utc.month_day, latest_gnss_data.utc.month, latest_gnss_data.utc.century_year + 2000);
+
+}
 
