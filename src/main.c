@@ -5,44 +5,66 @@
  */
 
 #include <stdio.h>
+#include <zephyr/logging/log.h>
 #include <zephyr/kernel.h>
-#include <zephyr/drivers/gpio.h>
+
+#include "usb.h"
+#include "bootloader.h"
+#include "led.h"
+#include "gnss.h"
+#include "button.h"
+#include "lis3dh.h"
+
 
 /* 1000 msec = 1 sec */
 #define SLEEP_TIME_MS   1000
 
-/* The devicetree node identifier for the "led0" alias. */
-#define LED0_NODE DT_ALIAS(led0)
-
-/*
- * A build error on this line means your board is unsupported.
- * See the sample documentation for information on how to fix this.
- */
-static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
+#define LOG_LEVEL LOG_LEVEL_DBG
+LOG_MODULE_REGISTER(main);
 
 int main(void)
 {
-	int ret;
 	bool led_state = true;
 
-	if (!gpio_is_ready_dt(&led)) {
-		return 0;
+	if(led_init() == false)
+	{
+		LOG_ERR("Failed to initialise LED");
+		return 1;
 	}
 
-	ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
-	if (ret < 0) {
-		return 0;
+	if(usb_init() == false)
+	{
+		LOG_ERR("Failed to initialise USB");
+		return 1;
 	}
 
+	if(gnss_init() == false)
+	{
+		LOG_ERR("Failed to initialise GNSS");
+		return 1;
+	}
+
+	if(button_init() == false)
+	{
+		LOG_ERR("Failed to initialise BUTTON");
+		return 1;
+	}
+
+	// if(acc_init() == false)
+	// {
+	// 	LOG_ERR("Failed to initialise ACC");
+	// 	return 1;
+	// }
+
+	printk ("Running t1000-1 test app\n");
 	while (1) {
-		ret = gpio_pin_toggle_dt(&led);
-		if (ret < 0) {
-			return 0;
-		}
-
+		
 		led_state = !led_state;
-		printf("LED state: %s\n", led_state ? "ON" : "OFF");
+		set_led(led_state);
+		//acc_fetch_display();
+		//i2c_scan();
 		k_msleep(SLEEP_TIME_MS);
 	}
 	return 0;
 }
+

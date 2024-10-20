@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "toolchain.h": "c",
+        "gpio.h": "c",
+        "gnss.h": "c",
+        "memory": "c",
+        "random": "c",
+        "lis3dh.h": "c"
+    },
+    "nrf-connect.debugging.bindings": {
+        "${workspaceFolder}/build": "Launch build"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
+}

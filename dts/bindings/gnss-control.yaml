@@ -1,0 +1,40 @@
+include: base.yaml
+
+description: GPIO pins that control the gnss module
+compatible: "gnss-control"
+properties:
+  enable-gpios:
+    type: phandle-array
+    required: true
+    description: |
+      The GPIO connected to gnss enable.
+      
+  reset-gpios:
+    type: phandle-array
+    required: true
+    description: |
+      The GPIO connected to gnss reset.
+
+  vrtc-gpios:
+    type: phandle-array
+    required: true
+    description: |
+      The GPIO connected to gnss vrtc enable.
+
+  sleep-gpios:
+    type: phandle-array
+    required: true
+    description: |
+      The GPIO connected to gnss sleep int.
+
+  rtc-gpios:
+    type: phandle-array
+    required: true
+    description: |
+      The GPIO connected to gnss rtc int.
+
+  resetb-gpios:
+    type: phandle-array
+    required: true
+    description: |
+      The GPIO connected to gnss resetb out.

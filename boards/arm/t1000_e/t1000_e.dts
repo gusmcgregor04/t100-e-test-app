@@ -1,0 +1,168 @@
+// Copyright (c) 2024 Nordic Semiconductor ASA
+// SPDX-License-Identifier: Apache-2.0
+
+/dts-v1/;
+#include <nordic/nrf52840_qiaa.dtsi>
+#include "t1000_e-pinctrl.dtsi"
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+
+/ {
+	model = "T1000-E";
+	compatible = "seeed,t1000-e";
+
+	chosen {
+		zephyr,console = &cdc_acm_uart;
+		zephyr,shell-uart = &cdc_acm_uart;
+		zephyr,uart-mcumgr = &cdc_acm_uart;
+		zephyr,bt-mon-uart = &cdc_acm_uart;
+		zephyr,bt-c2h-uart = &cdc_acm_uart;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+		zephyr,ieee802154 = &ieee802154;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led_green: led {
+			gpios = <&gpio0 24 GPIO_ACTIVE_HIGH>;
+			label = "Green LED";
+		};
+	};
+
+
+	pwmleds {
+		compatible = "pwm-leds";
+		pwm_led: pwm_led {
+			pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_INVERTED>;
+		};
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+		button0: button_0 {
+			gpios = <&gpio0 6 (GPIO_ACTIVE_HIGH)>;
+			label = "Push button switch 0";
+			zephyr,code = <INPUT_KEY_0>;
+		};
+	};
+
+	gnss_control: gnss_control {
+		compatible = "gnss-control";
+		status = "okay";
+		enable-gpios = <&gpio1 11 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
+		vrtc-gpios = <&gpio0 8 GPIO_ACTIVE_HIGH>;
+		sleep-gpios = <&gpio1 12 GPIO_ACTIVE_HIGH>;
+		rtc-gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>;
+		resetb-gpios = <&gpio1 14 (GPIO_PULL_UP | GPIO_ACTIVE_HIGH)>;
+	};
+
+	aliases {
+		sw0 = &button0;
+		led0 = &led_green;
+		pwm-led0 = &pwm_led;
+		watchdog0 = &wdt0;
+		gnss = &gnss;
+		my-i2c = &i2c0;
+	};
+};
+
+
+&adc {
+	status = "okay";
+};
+	
+&gpiote {
+	status = "okay";
+};
+	
+&uicr {
+	nfct-pins-as-gpios;
+	gpio-as-nreset;
+};
+	
+&gpio0 {
+	status = "okay";
+};
+	
+&gpio1 {
+	status = "okay";
+};
+	
+&uart0 {
+	status = "okay";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart0_default>;
+	pinctrl-1 = <&uart0_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	gnss: AG3335 {
+		compatible = "gnss-nmea-generic";
+	};
+};
+	
+&i2c0 {
+	compatible = "nordic,nrf-twi";
+	status = "okay";
+	label = "i2c";
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-1 = <&i2c0_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	lis3dh: lis3dh@12 {
+		compatible = "st,lis3dh";
+		supply-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;
+		reg = <0x12>;
+	};
+};
+	
+&pwm0 {
+	status = "okay";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-1 = <&pwm0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+	
+	
+&ieee802154 {
+	status = "okay";
+};
+	
+zephyr_udc0: &usbd {
+	compatible = "nordic,nrf-usbd";
+	status = "okay";
+	
+	cdc_acm_uart: cdc_acm_uart {
+		compatible = "zephyr,cdc-acm-uart";
+	};
+};
+
+
+&flash0 {
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		sd_partition: partition@0 {
+			label = "softdevice";
+			reg = <0x00000000 0x00027000>;
+		};
+		slot0_partition: partition@27000 {
+			label = "image-0";
+			reg = <0x00027000 0x00068000>;
+		};
+
+		/* Storage partition will be used by FCB/NFFS/NVS if enabled. */
+		storage_partition: partition@e5000 {
+			label = "storage";
+			reg = <0x000e5000 0x00008000>;
+		};
+	};
+};
+
+
+
+
