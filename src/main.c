@@ -13,7 +13,7 @@
 #include "led.h"
 #include "gnss.h"
 #include "button.h"
-#include "lis3dh.h"
+#include "accel.h"
 
 
 /* 1000 msec = 1 sec */
@@ -50,19 +50,21 @@ int main(void)
 		return 1;
 	}
 
-	// if(acc_init() == false)
-	// {
-	// 	LOG_ERR("Failed to initialise ACC");
-	// 	return 1;
-	// }
+	if(accel_init() == false)
+	{
+		LOG_ERR("Failed to initialise ACC");
+		return 1;
+	}
 
 	printk ("Running t1000-1 test app\n");
+
+	accel_start_test();
+	
 	while (1) {
 		
 		led_state = !led_state;
 		set_led(led_state);
-		//acc_fetch_display();
-		//i2c_scan();
+		accel_print_data();
 		print_latest_gnss();
 		k_msleep(SLEEP_TIME_MS);
 	}

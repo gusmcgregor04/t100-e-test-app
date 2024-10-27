@@ -64,7 +64,6 @@
 		pwm-led0 = &pwm_led;
 		watchdog0 = &wdt0;
 		gnss = &gnss;
-		my-i2c = &i2c0;
 	};
 };
 
@@ -110,9 +109,10 @@
 	pinctrl-1 = <&i2c0_sleep>;
 	pinctrl-names = "default", "sleep";
 
-	lis3dh: lis3dh@12 {
-		compatible = "st,lis3dh";
+	qma6100p: qma6100p@12 {
+		compatible = "st,lis3dh", "power";
 		supply-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;
+		label = "accel";
 		reg = <0x12>;
 	};
 };
